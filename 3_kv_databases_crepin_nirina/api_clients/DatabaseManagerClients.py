@@ -1,6 +1,7 @@
 # Importing the 'pymongo' module for MongoDB interaction
 import pymongo
 import os 
+import json
 
 # Definition of the PyMongoDatabase class
 class DatabaseManagerClient:
@@ -51,6 +52,31 @@ class DatabaseManagerClient:
             print(f"client '{client.name}' inserted with ID: {sid}")
         except Exception as e:
             # Handling exceptions and printing an error message if data insertion fails
+            print(f"Error: {e}")
+
+    # Exercice 1.2: Inserting many movies from a JSON file
+    def insert_json_movies(self, json_file):
+        try:
+            with open(json_file, "r", encoding="utf-8") as f:
+                movies = json.load(f)
+            if isinstance(movies, list):
+                inserted_count = 0
+                skipped_count = 0
+                for movie in movies:
+                    #custom_id = self.generate_custom_id(movie.get("year"), movie.get("genre"))
+                    # Check if movie with same title already exists
+                    if self.collection.find_one({"title": movie.get("title")}):
+                        skipped_count += 1
+                        continue
+                    movie["_id"] = self.get_next_id()
+                    #movie["_id"] = custom_id
+                    self.collection.insert_one(movie)
+                    inserted_count += 1
+
+                print(f"Inserted {inserted_count} new movies. Skipped {skipped_count} duplicates.")
+            else:
+                print("JSON file does not contain a list of movies.")
+        except Exception as e:
             print(f"Error: {e}")
 
     # Method to fetch a specific client's data based on client ID
