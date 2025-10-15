@@ -1,0 +1,51 @@
+(api_movies_series)
+
+Frontend liés : 
+
+--> home.html (contient movies/series) : 
+
+    onglets:
+        - home
+        - movies
+        - series
+        - my list
+        - profile
+        - my friends
+    Landing page:
+        -recommendations affichés
+
+Backend : movies_series.py
+
+    BD:
+        - import package
+        - connexion Mongodb
+        - connexion Redis
+    méthodes (CRUD):
+        GET : 
+        - get_movies_series()
+        - get_movies()
+        - get_series()
+        - get_profile() //aller voir son profile
+        - get_my_list() //accéder à ses films/series 
+        - get_my_friends() // consulter les profiles de ses amis
+
+        ADD:
+        - add_movies_series()
+        - add_movies()
+        - add_series()
+        - add_user()
+
+        PUT:
+        - update_movies_series()
+        - update_movies()
+        - update_series()
+        - update_my_list()
+        - update_my_friends()
+        - update_user()
+
+        DELETE:
+        - delete_movie_series_from_my_list()
+        - delete_movie_from_my_list()
+        - delete_serie_from_my_list()
+        - delete_friend()
+
