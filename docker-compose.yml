@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  api_mvoies_series:
+  api_movies_series:
     build: ./api_mvoies_series
-    container_name: api_mvoies_series
+    container_name: api_movies_series
     ports:
       - "5000:5000"
     depends_on:
@@ -12,6 +12,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/
       - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
       - CACHE_TTL_SECONDS=120
     volumes:
       - ./api_mvoies_series:/app
@@ -28,6 +29,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/
       - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
       - CACHE_TTL_SECONDS=120
     volumes:
       - ./api_users:/app   
@@ -35,7 +37,7 @@ services:
 
   mongodb:
     image: mongo:7
-    container_name: mongo
+    container_name: group_movies_series_mongo
     ports:
       - "27017:27017"
     volumes:
@@ -43,7 +45,7 @@ services:
 
   redis:
     image: redis:7
-    container_name: redis
+    container_name: group_movies_series_redis
     restart: unless-stopped
     ports:
       - '6379:6379'
@@ -58,7 +60,7 @@ services:
 
   redisinsight:
     image: redislabs/redisinsight:latest
-    container_name: redisinsight
+    container_name: group_movies_series_redisinsight
     restart: unless-stopped
     ports:
       - 5540:5540
