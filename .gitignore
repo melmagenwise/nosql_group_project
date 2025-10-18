@@ -3,6 +3,11 @@ __pycache__/
 *.py[codz]
 *$py.class
 .env/
+homework/3_kv_databases_crepin_nirina/ressources/
+api_movies_series/data/
+redis_data/
+redisinsight_data/
+api_users/node_modules/
 
 # C extensions
 *.so

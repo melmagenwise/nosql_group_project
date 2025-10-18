@@ -1,0 +1,4 @@
+api_movies_series/data
+redis_data
+redisinsight_data
+api_users/node_modules

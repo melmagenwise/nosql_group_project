@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   api_movies_series:
-    build: ./api_mvoies_series
+    build: ./api_movies_series
     container_name: api_movies_series
     ports:
       - "5000:5000"
@@ -14,9 +12,10 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - REDIS_HOST=redis
       - CACHE_TTL_SECONDS=120
+      - MOVIES_DATA_FILE=/app/data/movies_data.json
     volumes:
-      - ./api_mvoies_series:/app
-      - /app/node_modules
+      - ./api_movies_series:/app
+      - ./data/movies_data.json:/app/data/movies_data.json:ro
 
   api_users:
     build: ./api_users
@@ -42,6 +41,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+      - ./data/movies_data.json:/docker-entrypoint-initdb.d/movies_data.json:ro
+      - ./scripts/seed.js:/docker-entrypoint-initdb.d/seed.js:ro
 
   redis:
     image: redis:7

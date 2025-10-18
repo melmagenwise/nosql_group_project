@@ -34,7 +34,8 @@ def get_my_friends():
         my_friends = list(my_friends_collection.find())
         for friend in my_friends:
             friend['_id'] = str(friend['_id'])
-        r.setex(cache_key, 60, json.dumps(my_friends)) #storage of the value for 60''
+        #Storage of the value for 60''    
+        r.setex(cache_key, 60, json.dumps(my_friends)) 
         return jsonify(my_friends)
     
 # Getting a friend with his id
@@ -47,7 +48,7 @@ def get_my_friend(friend_id):
         print("cache hit!")
         return jsonify(json.loads(cached_data))
     # Getting the data from my_friends_collection (from MongoDB) if the data is not in the cache
-    friend = my_friends_collection.find_one({"_id": ObjectId(friend_id)}) # _id is an ObjectID type in MongoDB
+    friend = my_friends_collection.find_one({"_id": ObjectId(friend_id)}) 
     if friend:
         friend['_id'] = str(friend['_id'])
         r.setex(cache_key, 60, json.dumps(friend))
