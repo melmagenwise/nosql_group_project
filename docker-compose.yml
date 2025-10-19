@@ -34,6 +34,23 @@ services:
       - ./api_users:/app   
       - /app/node_modules
 
+  api_people:
+    build: ./api_people
+    container_name: api_people
+    ports:
+      - "5002:5002"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - CACHE_TTL_SECONDS=120
+    volumes:
+      - ./api_people:/app   
+      - /app/node_modules
+
   mongodb:
     image: mongo:7
     container_name: group_movies_series_mongo
