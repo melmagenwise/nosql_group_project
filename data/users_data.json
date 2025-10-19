@@ -1,0 +1,66 @@
+{
+    "_id": "u000000000001",
+    "username": "cinefan_92",
+    "full_name": "Alex Dupont",
+    "member_since": "2017-08-15",
+    "birthdate": "2001-08-15",
+    "location_city": "Brussels",
+    "location_country": "Belgium",
+    "about_me": "Passionate about cinema history, especially war dramas, European arthouse, and 90s thrillers. Favorite directors: Christopher Nolan, Denis Villeneuve, Wong Kar-Wai. I curate movie lists based on emotion, storytelling, and visual impact.",
+    "favorites": [
+        {
+            "_id": "ms000000000001"
+        },
+        {
+            "_id": "ms000000000002"
+        }
+    ],
+    "reviews": [
+        {
+            "_id": "ms000000000001",
+            "review_text": "A brutal, honest, and emotionally devastating portrayal of war. Spielberg at his most human.",
+            "helpful_votes": 1204,
+            "date_posted": "2025-10-18"
+        },
+        {
+            "_id": "ms000000000002",
+            "review_text": "A brutal, honest, and emotionally devastating portrayal of war. Spielberg at his most human.",
+            "helpful_votes": 1204,
+            "date_posted": "2025-10-18"
+        }
+    ],
+    "friends": [
+        {
+            "_id": "u000000000001",
+            "common_favorites": [
+                "Parasite",
+                "Blade Runner 2049"
+            ]
+        },
+        {
+            "_id": "u000000000002",
+            "common_favorites": [
+                "Parasite",
+                "Blade Runner 2049"
+            ]
+        }
+    ],
+    "list": [
+        {
+            "movies_series" : [
+                {
+                    "_id": "u000000000002"
+            },
+            {
+                "_id": "u000000000002"
+            
+            }
+            ]
+        }
+    ],
+    "stats": {
+        "total_favorites": 6,
+        "total_reviews": 65,
+        "friends_count": 3
+    }
+}
