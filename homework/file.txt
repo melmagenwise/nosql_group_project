@@ -5,30 +5,30 @@ Frontend liés :
 --> home.html (contient movies/series) : 
 
     onglets:
-        - home
-        - movies
+        - home 
+        - movies 
         - series
         - my list
         - profile
-        - my friends
+        - people
     Landing page:
         -recommendations affichés
 
 Backend : movies_series.py
 
     BD:
-        - import package
-        - connexion Mongodb
-        - connexion Redis
+        - import package --> ok
+        - connexion Mongodb --> ok
+        - connexion Redis --> ok
     méthodes (CRUD):
         GET : 
-        - get_movies_series()
-        - get_movies()
-        - get_series()
-        - get_profile() //aller voir son profile
-        - get_my_list() //accéder à ses films/series 
-        - get_my_friends() // consulter les profiles de ses amis
-
+        - get_movies_series() --> ok
+        - get_movies() --> ok 
+        - get_series() --> ok
+        - get_profile() //aller voir son profile --> en cours
+        - get_my_list() //accéder à ses films/series --> en cours
+        - get_my_friends() // consulter les profiles de ses amis --> ajouter get_friend ? (pour consulter un profil spécifique) --> en cours
+        
         ADD:
         - add_movies_series()
         - add_movies()
@@ -49,3 +49,12 @@ Backend : movies_series.py
         - delete_serie_from_my_list()
         - delete_friend()
 
+
+        Options : 
+        - filtre_data()
+        - sorted_data()
+
+api_people :
+
+    - get_actors()
+    - people_data()
