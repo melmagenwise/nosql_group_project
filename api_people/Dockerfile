@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "movies_series.py"]
+CMD ["python", "people.py"]
