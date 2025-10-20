@@ -8,6 +8,7 @@ api_movies_series/data/
 redis_data/
 redisinsight_data/
 api_users/node_modules/
+api_people/node_modules/
 
 # C extensions
 *.so
