@@ -1,6 +1,6 @@
 services:
   api_movies_series:
-    build: ./api_movies_series
+    build: ./api/api_movies_series
     container_name: api_movies_series
     ports:
       - "5000:5000"
@@ -14,11 +14,11 @@ services:
       - CACHE_TTL_SECONDS=120
       - MOVIES_DATA_FILE=/app/data/movies_data.json
     volumes:
-      - ./api_movies_series:/app
+      - ./api/api_movies_series:/app
       - ./data/movies_data.json:/app/data/movies_data.json:ro
 
   api_users:
-    build: ./api_users
+    build: ./api/api_users
     container_name: api_users
     ports:
       - "5001:5001"
@@ -31,11 +31,11 @@ services:
       - REDIS_HOST=redis
       - CACHE_TTL_SECONDS=120
     volumes:
-      - ./api_users:/app   
+      - ./api/api_users:/app   
       - /app/node_modules
 
   api_people:
-    build: ./api_people
+    build: ./api/api_people
     container_name: api_people
     ports:
       - "5002:5002"
@@ -48,8 +48,27 @@ services:
       - REDIS_HOST=redis
       - CACHE_TTL_SECONDS=120
     volumes:
-      - ./api_people:/app   
+      - ./api/api_people:/app   
       - /app/node_modules
+
+  myapp:
+    build:
+      context: ./myapp
+      dockerfile: Dockerfile.dev
+    container_name: myapp
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./myapp:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    depends_on:
+      - api_movies_series
+      - api_users
+      - api_people
 
   mongodb:
     image: mongo:7

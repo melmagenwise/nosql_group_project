@@ -1,5 +1,6 @@
-api_movies_series/data
+api/api_movies_series/data
 redis_data
 redisinsight_data
-api_users/node_modules
-api_people/node_modules
+api/api_users/node_modules
+api/api_people/node_modules
+myapp/node_modules
