@@ -4,10 +4,10 @@ import MovieDetail from './components/MovieDetail';
 import MovieRail from './components/MovieRail';
 import './App.css';
 
-const DEFAULT_API_BASE = 'http://localhost:5000';
-const API_BASE_URL = (
-  process.env.REACT_APP_API_BASE_URL || DEFAULT_API_BASE
-).replace(/\/+$/, '');
+const apiBaseFromEnv = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = apiBaseFromEnv
+  ? apiBaseFromEnv.replace(/\/+$/, '')
+  : '';
 
 const curatedSelection = (movies) => {
   const filtered = movies.filter(
@@ -36,7 +36,10 @@ function App() {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fetch(`${API_BASE_URL}/movies-series`, {
+        const requestUrl = API_BASE_URL
+          ? `${API_BASE_URL}/movies-series`
+          : '/movies-series';
+        const response = await fetch(requestUrl, {
           signal: controller.signal,
         });
 
@@ -53,9 +56,10 @@ function App() {
         if (err.name !== 'AbortError') {
           const message =
             err.message || 'Unknown error loading movies from the API';
-          setError(
-            `${message}. Please verify the service at ${API_BASE_URL}/movies-series is reachable.`,
-          );
+          const hint = API_BASE_URL
+            ? `Please verify the service at ${API_BASE_URL}/movies-series is reachable.`
+            : 'Please verify the service is reachable through the development proxy (port 5000).';
+          setError(`${message}. ${hint}`);
         }
       } finally {
         setIsLoading(false);
