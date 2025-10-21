@@ -30,8 +30,10 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - REDIS_HOST=redis
       - CACHE_TTL_SECONDS=120
+      - USERS_DATA_FILE=/app/data/users_data.json
     volumes:
-      - ./api/api_users:/app   
+      - ./api/api_users:/app
+      - ./data/users_data.json:/app/data/users_data.json:ro
       - /app/node_modules
 
   api_people:
@@ -47,8 +49,10 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - REDIS_HOST=redis
       - CACHE_TTL_SECONDS=120
+      - PEOPLE_DATA_FILE=/app/data/people_data.json
     volumes:
-      - ./api/api_people:/app   
+      - ./api/api_people:/app
+      - ./data/people_data.json:/app/data/people_data.json:ro
       - /app/node_modules
 
   myapp:
@@ -78,7 +82,11 @@ services:
     volumes:
       - mongo_data:/data/db
       - ./data/movies_data.json:/docker-entrypoint-initdb.d/movies_data.json:ro
-      - ./scripts/seed.js:/docker-entrypoint-initdb.d/seed.js:ro
+      - ./data/people_data.json:/docker-entrypoint-initdb.d/people_data.json:ro
+      - ./data/users_data.json:/docker-entrypoint-initdb.d/users_data.json:ro
+      - ./scripts/seed_movies_series.js:/docker-entrypoint-initdb.d/seed_movies_series.js:ro
+      - ./scripts/seed_users.js:/docker-entrypoint-initdb.d/seed_users.js:ro
+      - ./scripts/seed_people.js:/docker-entrypoint-initdb.d/seed_people.js:ro
 
   redis:
     image: redis:7
