@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 # connexion to MongoDB
 client = MongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017")) 
-db = client["api_movies_series"]
+db = client["api_users"]
 my_friends_collection = db["my_friends"]
 users_collection = db["users"]   # <-- ici on suppose que le profil et les favoris sont stockés ici
 

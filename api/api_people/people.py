@@ -9,7 +9,7 @@ import redis
 app = Flask(__name__)
 
 client = MongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017"))
-db = client["api_movies_series"]
+db = client["api_people"]
 people_collection = db["people"]
 
 r = redis.Redis(

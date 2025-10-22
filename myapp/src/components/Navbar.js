@@ -9,6 +9,7 @@ const Navbar = () => {
         <a href="#home">MyHome</a>
         <a href="#movies">Movies</a>
         <a href="#series">Series</a>
+        <a href="#series">My Profile</a>
       </nav>
     </header>
   );

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Navbar from './components/Navbar';
 import MovieDetail from './components/MovieDetail';
 import MovieRail from './components/MovieRail';
+import MoviePeople from './components/MoviePeople';
 import './App.css';
 
 const apiBaseFromEnv = process.env.REACT_APP_API_BASE_URL;
@@ -100,6 +101,7 @@ function App() {
         {!error && !isLoading ? (
           <>
             <MovieDetail movie={heroMovie} />
+            <MoviePeople movie={heroMovie} />
             <MovieRail
               movies={movies}
               selectedId={heroMovie?._id}
