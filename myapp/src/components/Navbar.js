@@ -7,11 +7,11 @@ const Navbar = () => {
     <header className="navbar">
       <div className="navbar__logo">MovieManiac</div>
       <nav className="navbar__links" aria-label="Primary navigation">
-        <Link to="/">MyHome</Link>
-        <Link to="/#movies">Movies</Link>
-        <Link to="/#series">Series</Link>
-        <Link to="/#actors">Actors</Link>
-        <Link to="/#myprofile">MyProfile</Link>
+        <Link to="/home">MyHome</Link>
+        <Link to="/movies">Movies</Link>
+        <Link to="/series">Series</Link>
+        <Link to="/actors">Actors</Link>
+        <Link to="/profile">MyProfile</Link>
       </nav>
     </header>
   );
