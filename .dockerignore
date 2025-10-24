@@ -4,3 +4,4 @@ redisinsight_data
 api/api_users/node_modules
 api/api_people/node_modules
 myapp/node_modules
+myapp/build

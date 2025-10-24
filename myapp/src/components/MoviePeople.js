@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './MoviePeople.css';
+import { buildPeopleUrl } from '../config';
 
 const FALLBACK_AVATAR =
   'https://ui-avatars.com/api/?name=MM&background=023047&color=ffffff&size=256&length=2';
-
-const PEOPLE_API_BASE = (
-  process.env.REACT_APP_PEOPLE_API_BASE_URL || ''
-).replace(/\/+$/, '');
 
 const buildAvatarUrl = (name, photoUrl) => {
   if (photoUrl) {
@@ -15,17 +13,6 @@ const buildAvatarUrl = (name, photoUrl) => {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(
     name,
   )}&background=023047&color=ffffff&size=256&length=2`;
-};
-
-const buildPeopleEndpoint = (name) => {
-  const params = new URLSearchParams({
-    q: name,
-    limit: '1',
-  });
-  if (PEOPLE_API_BASE) {
-    return `${PEOPLE_API_BASE}/people?${params.toString()}`;
-  }
-  return `/people?${params.toString()}`;
 };
 
 const uniqueList = (items) => {
@@ -132,9 +119,16 @@ const MoviePeople = ({ movie }) => {
         const results = await Promise.all(
           uniqueNames.map(async (name) => {
             try {
-              const response = await fetch(buildPeopleEndpoint(name), {
-                signal: controller.signal,
+              const params = new URLSearchParams({
+                q: name,
+                limit: '1',
               });
+              const response = await fetch(
+                buildPeopleUrl(`/people?${params.toString()}`),
+                {
+                  signal: controller.signal,
+                },
+              );
 
               if (!response.ok) {
                 throw new Error(`Failed to load data for ${name}`);
@@ -198,7 +192,11 @@ const MoviePeople = ({ movie }) => {
   }
 
   return (
-    <section className="movie-people" aria-labelledby="movie-people-heading">
+    <section
+      className="movie-people"
+      aria-labelledby="movie-people-heading"
+      id="actors"
+    >
       <div className="movie-people__header">
         <h2 id="movie-people-heading">Meet the People Behind the Story</h2>
         <p>
@@ -230,7 +228,10 @@ const MoviePeople = ({ movie }) => {
               const roleLabel = Array.isArray(profile?.role)
                 ? profile.role.join(' / ')
                 : section.fallbackRole;
-              const destination = profile?.url;
+              const internalDestination = profile?._id
+                ? `/actors/${profile._id}`
+                : null;
+              const externalDestination = profile?.url;
 
               const content = (
                 <>
@@ -248,11 +249,24 @@ const MoviePeople = ({ movie }) => {
                 </>
               );
 
-              return destination ? (
+              if (internalDestination) {
+                return (
+                  <Link
+                    className="movie-people__item"
+                    key={`${section.id}-${name}`}
+                    to={internalDestination}
+                    role="listitem"
+                  >
+                    {content}
+                  </Link>
+                );
+              }
+
+              return externalDestination ? (
                 <a
                   className="movie-people__item"
                   key={`${section.id}-${name}`}
-                  href={destination}
+                  href={externalDestination}
                   target="_blank"
                   rel="noopener noreferrer"
                   role="listitem"
