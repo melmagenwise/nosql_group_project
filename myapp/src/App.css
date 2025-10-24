@@ -70,6 +70,12 @@
   gap: 2rem;
 }
 
+.movie-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .actor-detail-page__actions {
   display: flex;
   justify-content: flex-end;

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import PersonDetail from '../components/PersonDetail';
-import { buildPeopleUrl } from '../config';
+import { buildPeopleUrl, buildMoviesUrl } from '../config';
 
 const ActorDetailPage = () => {
   const { actorId } = useParams();
   const [person, setPerson] = useState(null);
+  const [knownForDetails, setKnownForDetails] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,6 +58,62 @@ const ActorDetailPage = () => {
     return () => controller.abort();
   }, [actorId]);
 
+  useEffect(() => {
+    if (!person || !Array.isArray(person.movie) || person.movie.length === 0) {
+      setKnownForDetails([]);
+      return;
+    }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    const loadKnownFor = async () => {
+      try {
+        const uniqueMovies = Array.from(
+          new Map(
+            person.movie
+              .filter((entry) => entry?._id)
+              .map((entry) => [entry._id, entry]),
+          ).values(),
+        );
+
+        const results = await Promise.all(
+          uniqueMovies.map(async (entry) => {
+            const endpoint = buildMoviesUrl(`/movies-series/${entry._id}`);
+            try {
+              const response = await fetch(endpoint, {
+                signal: controller.signal,
+              });
+              if (!response.ok) {
+                return null;
+              }
+              return await response.json();
+            } catch (movieErr) {
+              console.warn(movieErr);
+              return null;
+            }
+          }),
+        );
+
+        if (!cancelled) {
+          setKnownForDetails(results.filter(Boolean));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.warn('Failed to load known-for titles', err);
+          setKnownForDetails([]);
+        }
+      }
+    };
+
+    loadKnownFor();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [person]);
+
   if (error) {
     return (
       <div className="status status--error" role="alert">
@@ -80,7 +137,7 @@ const ActorDetailPage = () => {
 
   return (
     <div className="actor-detail-page">
-      <PersonDetail person={person} />
+      <PersonDetail person={person} knownForDetails={knownForDetails} />
       <div className="actor-detail-page__actions">
         <Link to="/" className="actor-detail-page__back">
           ← Back to home

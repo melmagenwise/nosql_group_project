@@ -27,6 +27,7 @@ CACHE_KEYS = {
     "movies": "movies_only",
     "series": "series_only",
 }
+MOVIE_DETAIL_CACHE_PREFIX = "movie_detail:"
 
 def build_payload(data, forced_type=None):
     if not data or not isinstance(data, dict) or "title" not in data:
@@ -57,6 +58,18 @@ def fetch_documents(filter_query=None):
     items = movies_collection.find(filter_query or {})
     return [serialize_document(item) for item in items]
 
+def fetch_single(movie_id):
+    query = {"$or": [{"_id": movie_id}, {"imdb_id": movie_id}]}
+    document = movies_collection.find_one(query)
+    if not document:
+        return None
+    return serialize_document(document)
+
+def invalidate_detail_cache():
+    pattern = f"{MOVIE_DETAIL_CACHE_PREFIX}*"
+    for key in r.scan_iter(pattern):
+        r.delete(key)
+
 
 @app.route("/movies-series", methods=["GET"])
 def get_movies_series():
@@ -70,6 +83,23 @@ def get_movies_series():
     items = fetch_documents()
     r.setex(cache_key, CACHE_TTL_SECONDS, json.dumps(items))
     return jsonify(items)
+
+
+@app.route("/movies-series/<movie_id>", methods=["GET"])
+def get_movie_detail(movie_id):
+    cache_key = f"{MOVIE_DETAIL_CACHE_PREFIX}{movie_id}"
+    cached = r.get(cache_key)
+    if cached:
+        print("movie detail cache hit!")
+        return jsonify(json.loads(cached))
+
+    print("movie detail cache miss. Fetching from MongoDB...")
+    document = fetch_single(movie_id)
+    if not document:
+        return jsonify({"error": "Movie not found"}), 404
+
+    r.setex(cache_key, CACHE_TTL_SECONDS, json.dumps(document))
+    return jsonify(document)
 
 
 @app.route("/movies", methods=["GET"])
@@ -116,6 +146,7 @@ def add_movies_series():
     result = movies_collection.insert_one(payload)
     document = movies_collection.find_one({"_id": result.inserted_id})
     r.delete(*CACHE_KEYS.values())
+    invalidate_detail_cache()
     return jsonify(serialize_document(document)), 201
 
 
@@ -128,6 +159,7 @@ def add_movies():
     result = movies_collection.insert_one(payload)
     document = movies_collection.find_one({"_id": result.inserted_id})
     r.delete(*CACHE_KEYS.values())
+    invalidate_detail_cache()
     return jsonify(serialize_document(document)), 201
 
 

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import ActorDetailPage from './pages/ActorDetailPage';
+import MovieDetailPage from './pages/MovieDetailPage';
 import './App.css';
 
 const NotFound = () => (
@@ -23,6 +24,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/actors/:actorId" element={<ActorDetailPage />} />
+            <Route path="/movies-series/:movieId" element={<MovieDetailPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
