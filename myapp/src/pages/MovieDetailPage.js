@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import MovieDetail from '../components/MovieDetail';
 import MoviePeople from '../components/MoviePeople';
+import MovieTrailer from '../components/MovieTrailer';
 import MovieRail from '../components/MovieRail';
 import { buildMoviesUrl } from '../config';
 
@@ -112,6 +113,7 @@ const MovieDetailPage = () => {
   return (
     <div className="movie-detail-page">
       <MovieDetail movie={heroMovie} />
+      <MovieTrailer trailerUrl={heroMovie?.trailer_url} />
       <MoviePeople movie={heroMovie} />
       <MovieRail
         movies={movies}
@@ -123,3 +125,6 @@ const MovieDetailPage = () => {
 };
 
 export default MovieDetailPage;
+
+
+
