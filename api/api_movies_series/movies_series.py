@@ -59,11 +59,20 @@ def fetch_documents(filter_query=None):
     return [serialize_document(item) for item in items]
 
 def fetch_single(movie_id):
+    cache_key = f"{MOVIE_DETAIL_CACHE_PREFIX}{movie_id}"
+    cached = r.get(cache_key)
+    if cached:
+        print("movie detail cache hit!")
+        return json.loads(cached)
+
     query = {"$or": [{"_id": movie_id}, {"imdb_id": movie_id}]}
     document = movies_collection.find_one(query)
     if not document:
         return None
-    return serialize_document(document)
+
+    serialized = serialize_document(document)
+    r.setex(cache_key, CACHE_TTL_SECONDS, json.dumps(serialized))
+    return serialized
 
 def invalidate_detail_cache():
     pattern = f"{MOVIE_DETAIL_CACHE_PREFIX}*"
@@ -87,18 +96,10 @@ def get_movies_series():
 
 @app.route("/movies-series/<movie_id>", methods=["GET"])
 def get_movie_detail(movie_id):
-    cache_key = f"{MOVIE_DETAIL_CACHE_PREFIX}{movie_id}"
-    cached = r.get(cache_key)
-    if cached:
-        print("movie detail cache hit!")
-        return jsonify(json.loads(cached))
-
-    print("movie detail cache miss. Fetching from MongoDB...")
     document = fetch_single(movie_id)
     if not document:
         return jsonify({"error": "Movie not found"}), 404
 
-    r.setex(cache_key, CACHE_TTL_SECONDS, json.dumps(document))
     return jsonify(document)
 
 
@@ -172,6 +173,7 @@ def add_series():
     result = movies_collection.insert_one(payload)
     document = movies_collection.find_one({"_id": result.inserted_id})
     r.delete(*CACHE_KEYS.values())
+    invalidate_detail_cache()
     return jsonify(serialize_document(document)), 201
 
 

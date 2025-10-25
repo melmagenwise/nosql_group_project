@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import MovieDetail from '../components/MovieDetail';
 import MoviePeople from '../components/MoviePeople';
 import MovieRail from '../components/MovieRail';
@@ -20,6 +20,7 @@ const curatedSelection = (movies) => {
 };
 
 const MovieDetailPage = () => {
+  const navigate = useNavigate();
   const { movieId } = useParams();
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -80,12 +81,19 @@ const MovieDetailPage = () => {
     return movies.find((entry) => entry._id === movieId) ?? movies[0] ?? null;
   }, [movies, selectedMovie, movieId]);
 
+  const handleSelect = (movie) => {
+    if (movie?._id && movie._id !== movieId) {
+      navigate(`/movies-series/${movie._id}`);
+    }
+    setSelectedMovie(movie);
+  };
+
   if (error) {
     return (
       <div className="status status--error" role="alert">
         <h1>We hit a snag.</h1>
         <p>{error}</p>
-        <Link className="status__link" to="/">
+        <Link className="status__link" to="/home">
           Back to home
         </Link>
       </div>
@@ -108,7 +116,7 @@ const MovieDetailPage = () => {
       <MovieRail
         movies={movies}
         selectedId={heroMovie?._id}
-        onSelect={(movie) => setSelectedMovie(movie)}
+        onSelect={handleSelect}
       />
     </div>
   );
