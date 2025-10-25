@@ -9,6 +9,29 @@ const FALLBACK_PHOTO =
 const FALLBACK_POSTER =
   'https://via.placeholder.com/200x300.png?text=No+Poster';
 
+const normalizeType = (value) => {
+  if (!value) return null;
+  const label = String(value).toLowerCase();
+  if (label.includes('tv')) return 'TV Series';
+  if (label.includes('series')) return 'TV Series';
+  if (label.includes('movie') || label.includes('film')) return 'Movie';
+  return value;
+};
+
+const extractYear = (entry) => {
+  if (!entry) return null;
+  if (entry.year) {
+    return entry.year;
+  }
+  if (entry.release_date) {
+    const parsed = new Date(entry.release_date);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.getFullYear();
+    }
+  }
+  return null;
+};
+
 const PersonDetail = ({ person, knownForDetails = [] }) => {
   if (!person) {
     return null;
@@ -32,7 +55,7 @@ const PersonDetail = ({ person, knownForDetails = [] }) => {
   const displayKnownFor = Array.isArray(knownFor)
     ? knownFor.map((entry) => {
         if (entry?._id && knownForMap.has(entry._id)) {
-          return knownForMap.get(entry._id);
+          return { ...knownForMap.get(entry._id), ...entry };
         }
         return entry;
       })
@@ -40,93 +63,107 @@ const PersonDetail = ({ person, knownForDetails = [] }) => {
 
   return (
     <section className="person-detail" aria-labelledby="person-detail-title">
-      <div className="person-detail__photo">
-        <img
-          src={photoUrl || FALLBACK_PHOTO}
-          alt={`Portrait of ${name}`}
-          loading="lazy"
-        />
-      </div>
-
-      <div className="person-detail__body">
-        <div className="person-detail__header">
-          <h1 className="person-detail__title" id="person-detail-title">
-            {name}
-          </h1>
-          {externalUrl ? (
-            <a
-              className="person-detail__external"
-              href={externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View on IMDb
-            </a>
-          ) : null}
+      <div className="person-detail__main">
+        <div className="person-detail__photo">
+          <img
+            src={photoUrl || FALLBACK_PHOTO}
+            alt={`Portrait of ${name}`}
+            loading="lazy"
+          />
         </div>
 
-        {Array.isArray(role) && role.length > 0 ? (
-          <div className="person-detail__roles">
-            {role.map((entry) => (
-              <span key={entry} className="person-detail__badge">
-                {entry}
-              </span>
-            ))}
+        <div className="person-detail__body">
+          <div className="person-detail__header">
+            <h1 className="person-detail__title" id="person-detail-title">
+              {name}
+            </h1>
+            {externalUrl ? (
+              <a
+                className="person-detail__external"
+                href={externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View on IMDb
+              </a>
+            ) : null}
           </div>
-        ) : null}
 
-        {biography ? (
-          <p className="person-detail__biography">{biography}</p>
-        ) : (
-          <p className="person-detail__biography person-detail__biography--muted">
-            We don&apos;t have a biography for this person just yet.
-          </p>
-        )}
+          {Array.isArray(role) && role.length > 0 ? (
+            <div className="person-detail__roles">
+              {role.map((entry) => (
+                <span key={entry} className="person-detail__badge">
+                  {entry}
+                </span>
+              ))}
+            </div>
+          ) : null}
 
-        {Array.isArray(displayKnownFor) && displayKnownFor.length > 0 ? (
-          <div className="person-detail__known-for">
+          {biography ? (
+            <p className="person-detail__biography">{biography}</p>
+          ) : (
+            <p className="person-detail__biography person-detail__biography--muted">
+              We don&apos;t have a biography for this person just yet.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {Array.isArray(displayKnownFor) && displayKnownFor.length > 0 ? (
+        <div className="person-detail__known-for">
+          <div className="person-detail__known-for-meta">
             <h2>Known For</h2>
-            <div className="person-detail__known-for-grid">
-              {displayKnownFor.map((entry) => {
-                const id = entry?._id || entry?.movie_id;
-                const title = entry?.title || 'Untitled';
-                const poster = entry?.poster_url || FALLBACK_POSTER;
-                const content = (
-                  <>
-                    <div className="person-detail__known-for-poster">
-                      <img src={poster} alt={title} loading="lazy" />
-                    </div>
-                    <span className="person-detail__known-for-title">
-                      {title}
-                    </span>
-                  </>
-                );
+            <span className="person-detail__known-for-count">
+              {displayKnownFor.length}{' '}
+              {displayKnownFor.length === 1 ? 'title' : 'titles'}
+            </span>
+          </div>
+          <div className="person-detail__known-for-rail">
+            {displayKnownFor.map((entry) => {
+              const id = entry?._id || entry?.movie_id;
+              const title = entry?.title || 'Untitled';
+              const poster = entry?.poster_url || FALLBACK_POSTER;
+              const year = extractYear(entry);
+              const typeLabel = normalizeType(entry?.imdb_type || entry?.type);
+              const metaParts = [year, typeLabel ? typeLabel.toUpperCase() : null].filter(Boolean);
+              const metaText = metaParts.length ? metaParts.join(' | ') : '|';
 
-                if (id) {
-                  return (
-                    <Link
-                      key={id}
-                      to={`/movies-series/${id}`}
-                      className="person-detail__known-for-card"
-                    >
-                      {content}
-                    </Link>
-                  );
-                }
+              const content = (
+                <>
+                  <div className="person-detail__known-for-poster">
+                    <img src={poster} alt={title} loading="lazy" />
+                  </div>
+                  <span className="person-detail__known-for-title">
+                    {title}
+                  </span>
+                  <span className="person-detail__known-for-meta">{metaText}</span>
+                </>
+              );
 
+              if (id) {
                 return (
-                  <div
-                    key={title}
-                    className="person-detail__known-for-card person-detail__known-for-card--disabled"
+                  <Link
+                    key={id}
+                    to={`/movies-series/${id}`}
+                    className="person-detail__known-for-card"
                   >
                     {content}
-                  </div>
+                  </Link>
                 );
-              })}
-            </div>
+              }
+
+              return (
+                <div
+                  key={title}
+                  className="person-detail__known-for-card person-detail__known-for-card--disabled"
+                >
+                  {content}
+                </div>
+              );
+            })}
           </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </section>
   );
 };
@@ -150,6 +187,10 @@ PersonDetail.propTypes = {
       _id: PropTypes.string,
       title: PropTypes.string,
       poster_url: PropTypes.string,
+      imdb_type: PropTypes.string,
+      type: PropTypes.string,
+      year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      release_date: PropTypes.string,
     }),
   ),
 };
