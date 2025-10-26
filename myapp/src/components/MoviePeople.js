@@ -49,49 +49,59 @@ const MoviePeople = ({ movie }) => {
       movie;
 
     const actorsSource =
-      uniqueList(first_four_actors).length > 0
-        ? uniqueList(first_four_actors)
-        : uniqueList(main_actors);
+      uniqueList(main_actors).length > 0
+        ? uniqueList(main_actors)
+        : uniqueList(first_four_actors);
+
+    const crewSources = [
+      { list: uniqueList(directors), role: 'Director' },
+      { list: uniqueList(writers), role: 'Writer' },
+      { list: uniqueList(creator), role: 'Creator' },
+    ];
+
+    const crewRegistry = new Map();
+    crewSources.forEach(({ list, role }) => {
+      list.forEach((name) => {
+        if (!crewRegistry.has(name)) {
+          crewRegistry.set(name, new Set());
+        }
+        crewRegistry.get(name).add(role);
+      });
+    });
+
+    const crewPeople = Array.from(crewRegistry.entries()).map(
+      ([name, roles]) => ({
+        name,
+        fallbackRole: Array.from(roles).join(' / '),
+      }),
+    );
 
     const base = [
       {
         id: 'actors',
         title: 'Main Cast',
-        fallbackRole: 'Cast',
-        people: actorsSource,
-      },
-      {
-        id: 'directors',
-        title: 'Directors',
-        fallbackRole: 'Director',
-        people: uniqueList(directors),
-      },
-      {
-        id: 'writers',
-        title: 'Writers',
-        fallbackRole: 'Writer',
-        people: uniqueList(writers),
-      },
-      {
-        id: 'creators',
-        title: 'Creators',
-        fallbackRole: 'Creator',
-        people: uniqueList(creator),
+        people: actorsSource.slice(0, 16).map((name) => ({
+          name,
+          fallbackRole: 'Cast',
+        })),
       },
     ];
 
-    return base
-      .map((section) => ({
-        ...section,
-        people: section.people.slice(0, 16),
-      }))
-      .filter((section) => section.people.length > 0);
+    if (crewPeople.length > 0) {
+      base.push({
+        id: 'crew',
+        title: 'Crew',
+        people: crewPeople.slice(0, 16),
+      });
+    }
+
+    return base.filter((section) => section.people.length > 0);
   }, [movie]);
 
   const uniqueNames = useMemo(() => {
     const registry = new Set();
     sections.forEach((section) =>
-      section.people.forEach((name) => registry.add(name)),
+      section.people.forEach(({ name }) => registry.add(name)),
     );
     return Array.from(registry);
   }, [sections]);
@@ -179,8 +189,9 @@ const MoviePeople = ({ movie }) => {
     () =>
       sections.map((section) => ({
         ...section,
-        people: section.people.map((name) => ({
+        people: section.people.map(({ name, fallbackRole }) => ({
           name,
+          fallbackRole,
           profile: profiles[name] || null,
         })),
       })),
@@ -223,11 +234,12 @@ const MoviePeople = ({ movie }) => {
             <h3>{section.title}</h3>
           </div>
           <div className="movie-people__list" role="list">
-            {section.people.map(({ name, profile }) => {
+            {section.people.map(({ name, profile, fallbackRole }) => {
               const imageUrl = buildAvatarUrl(name, profile?.photo_url);
-              const roleLabel = Array.isArray(profile?.role)
-                ? profile.role.join(' / ')
-                : section.fallbackRole;
+              const profileRole = profile?.role;
+              const roleLabel = Array.isArray(profileRole)
+                ? profileRole.join(' / ')
+                : profileRole || fallbackRole;
               const internalDestination = profile?._id
                 ? `/actors/${profile._id}`
                 : null;

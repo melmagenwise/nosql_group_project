@@ -4,6 +4,7 @@ import MovieDetail from '../components/MovieDetail';
 import MoviePeople from '../components/MoviePeople';
 import MovieTrailer from '../components/MovieTrailer';
 import MovieRail from '../components/MovieRail';
+import MovieVitals from '../components/MovieVitals';
 import { buildMoviesUrl } from '../config';
 
 const curatedSelection = (movies) => {
@@ -113,6 +114,7 @@ const MovieDetailPage = () => {
   return (
     <div className="movie-detail-page">
       <MovieDetail movie={heroMovie} />
+      <MovieVitals movie={heroMovie} />
       <MovieTrailer trailerUrl={heroMovie?.trailer_url} />
       <MoviePeople movie={heroMovie} />
       <MovieRail

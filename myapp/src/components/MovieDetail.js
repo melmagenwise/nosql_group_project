@@ -37,6 +37,11 @@ const MovieDetail = ({ movie }) => {
     imdb_type: imdbType,
     series_total_seasons: totalSeasons,
     series_total_episodes: totalEpisodes,
+    content_rating: contentRating,
+    oscars_won: oscarsWon,
+    awards_wins: awardsWins,
+    awards_nominations: awardsNominations,
+    top_rated_rank: topRatedRank,
   } = movie;
 
   const runtimeLabel = formatRuntime(duration);
@@ -59,6 +64,56 @@ const MovieDetail = ({ movie }) => {
           .join(' | ')
       : null;
 
+  const parsedTopRank = Number.isFinite(Number(topRatedRank))
+    ? Math.round(Number(topRatedRank))
+    : null;
+  const parsedOscars = Number.isFinite(Number(oscarsWon))
+    ? Math.round(Number(oscarsWon))
+    : null;
+  const parsedWins = Number.isFinite(Number(awardsWins))
+    ? Math.round(Number(awardsWins))
+    : null;
+  const parsedNominations = Number.isFinite(Number(awardsNominations))
+    ? Math.round(Number(awardsNominations))
+    : null;
+
+  const highlightItems = [];
+
+  if (parsedTopRank && parsedTopRank > 0) {
+    const topRatedLabel =
+      imdbType === 'TVSeries' ? 'Top rated series' : 'Top rated movie';
+    highlightItems.push(`${topRatedLabel} #${parsedTopRank}`);
+  }
+
+  if (parsedOscars && parsedOscars > 0) {
+    highlightItems.push(
+      `Won ${parsedOscars === 1 ? '1 Oscar' : `${parsedOscars} Oscars`}`,
+    );
+  }
+
+  if ((parsedWins && parsedWins > 0) || (parsedNominations && parsedNominations > 0)) {
+    const winsLabel =
+      parsedWins && parsedWins > 0
+        ? `${parsedWins} win${parsedWins === 1 ? '' : 's'}`
+        : null;
+    const nominationsLabel =
+      parsedNominations && parsedNominations > 0
+        ? `${parsedNominations} nomination${parsedNominations === 1 ? '' : 's'}`
+        : null;
+    const combined = [winsLabel, nominationsLabel].filter(Boolean).join(' & ');
+    if (combined) {
+      highlightItems.push(`${combined} total`);
+    }
+  }
+
+  let contentRatingLetter = null;
+  if (typeof contentRating === 'string') {
+    const match = contentRating.match(/[A-Za-z0-9]/);
+    if (match) {
+      contentRatingLetter = match[0].toUpperCase();
+    }
+  }
+
   return (
     <section
       className="movie-detail"
@@ -78,6 +133,11 @@ const MovieDetail = ({ movie }) => {
           <span className="movie-detail__type">{typeTitle}</span>
           {runtimeLabel ? (
             <span className="movie-detail__runtime">{runtimeLabel}</span>
+          ) : null}
+          {contentRatingLetter ? (
+            <span className="movie-detail__content-rating" aria-label="Content rating">
+              {contentRatingLetter}
+            </span>
           ) : null}
           {rating ? (
             <span className="movie-detail__score" aria-label="IMDB rating">
@@ -105,6 +165,20 @@ const MovieDetail = ({ movie }) => {
             </span>
           ))}
         </div>
+
+        {highlightItems.length ? (
+          <div className="movie-detail__highlights" role="list">
+            {highlightItems.map((item, index) => (
+              <span
+                className="movie-detail__highlight"
+                role="listitem"
+                key={`${item}-${index}`}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );
